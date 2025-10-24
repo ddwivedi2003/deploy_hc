@@ -84,9 +84,9 @@ elif section == "😊 Emotion Detection":
 
         if dominant_emotion:
             st.markdown(f"<h3>Detected Emotion: {dominant_emotion.capitalize()}</h3>", unsafe_allow_html=True)
-            recommendations = emotion_backend.enhanced_emotion_recommendations(dominant_emotion, giphy_api_key="your_giphy_api_key")
-            st.success(f"**Motivational Quote:** {recommendations['quote']}")
-            if recommendations['video_url']:
+            recommendations = emotion_backend.get_giphy_gif(dominant_emotion)
+            st.success(f"**Motivational Quote:** {recommendations}")
+            if isinstance(recommendations, dict) and 'video_url' in recommendations and recommendations['video_url']:
                 st.video(recommendations['video_url'])
 
 
