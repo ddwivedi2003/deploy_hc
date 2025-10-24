@@ -16,7 +16,7 @@ with open(path, "r") as file:
 st.sidebar.title("Navigation")
 section = st.sidebar.radio(
     "Select a section",
-    ("Home", "Health Assistant AI", "Emotion Detection", "Report Analysis"),
+    ("Home", "Health Assistant AI", "Report Analysis"),
     index=0  
 )
 
