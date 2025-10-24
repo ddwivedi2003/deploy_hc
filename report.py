@@ -1,7 +1,6 @@
 import easyocr
 import requests
 import ss
-
 API_KEY = ss.k
 ENDPOINT = ss.ep
 
