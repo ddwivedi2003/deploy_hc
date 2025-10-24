@@ -1,24 +1,32 @@
-
-from PIL import Image
-import pytesseract
+import easyocr
 import requests
+import ss
 
-# Configuration
-API_KEY = "7eff5afad45744488b4c01d1c0291ae5"
-ENDPOINT = "https://hreport.openai.azure.com/openai/deployments/gpt-4/chat/completions?api-version=2024-02-15-preview"
+API_KEY = ss.k
+ENDPOINT = ss.ep
 
+try:
+    reader = easyocr.Reader(['en']) 
+except Exception as e:
+    print(f"Error initializing EasyOCR: {e}")
+    reader = None
 
 def analyze_report(uploaded_file):
+    """
+    Analyzes a medical report by extracting text with EasyOCR 
+    and sending it to Azure GPT-4.
+    """
+    if reader is None:
+        return None, "EasyOCR model failed to load."
+
     try:
-        
-        image = Image.open(uploaded_file)
-        
-       
-        extracted_text = pytesseract.image_to_string(image)
+        image_bytes = uploaded_file.read()
+        results = reader.readtext(image_bytes, detail=0, paragraph=True)
+        extracted_text = "\n".join(results)
+
+
         if not extracted_text.strip():
             return None, "No text could be extracted from the image."
-
-      
         headers = {
             "Content-Type": "application/json",
             "api-key": API_KEY,
@@ -40,7 +48,6 @@ def analyze_report(uploaded_file):
             "max_tokens": 800
         }
 
-      
         response = requests.post(ENDPOINT, headers=headers, json=payload)
         response.raise_for_status()
         response_data = response.json()
@@ -52,5 +59,6 @@ def analyze_report(uploaded_file):
             return None, "No valid response from GPT-4."
 
     except Exception as e:
+        if "Invalid" in str(e) or "PIL" in str(e):
+             return None, "Failed to process: The file is not a valid image."
         return None, f"Failed to process the image or request. Error: {str(e)}"
-
